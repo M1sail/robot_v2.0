@@ -10,7 +10,7 @@ void Driver::clc(float pos82B[], float ang82B[], int isRL)
     float rot82B[3][3] = { {cos(ang82B[0]) * cos(ang82B[1]), cos(ang82B[0]) * sin(ang82B[1]) * sin(ang82B[2]) - sin(ang82B[0]) * cos(ang82B[2]), cos(ang82B[0]) * sin(ang82B[1]) * cos(ang82B[2]) + sin(ang82B[0]) * sin(ang82B[2])},
                                      {sin(ang82B[0]) * cos(ang82B[1]), sin(ang82B[0]) * sin(ang82B[1]) * sin(ang82B[2]) + cos(ang82B[0]) * cos(ang82B[2]), sin(ang82B[0]) * sin(ang82B[1]) * cos(ang82B[2]) - cos(ang82B[0]) * sin(ang82B[2])},
                                      {-sin(ang82B[1]), cos(ang82B[1]) * sin(ang82B[2]), cos(ang82B[1]) * cos(ang82B[2])} };
-    //====计算手掌相对肩关节坐标系{0}的位置和转角
+    //----------计算手掌相对肩关节坐标系{0}的位置和转角
     if (isRL == 0)
     {
         float temp[3]; matrix_multiply_3x1(temp, rotB_R, pos82B);
@@ -24,10 +24,10 @@ void Driver::clc(float pos82B[], float ang82B[], int isRL)
         matrix_multiply3(rot8, rotB_L, rot82B);
     }
 
-    //----------先求手腕位置----------//
+    //----------先求手腕位置
     for (int i = 0; i < 3; i++) { pos5[i] = pos8[i] + rot8[i][1] * (-armLen[2]); }
 
-    //----------臂形角为零时，利用腕关节{5}在基座标{0}的位置计算θ1~θ4----------//
+    //----------臂形角为零时，利用腕关节{5}在基座标{0}的位置计算θ1~θ4
     th[2] = 0;                  //th[2]即为θ3 = 0
 
     float lsw = sqrt(pos5[0] * pos5[0] + pos5[1] * pos5[1] + pos5[2] * pos5[2]);                //利用肩肘腕三角形求θ4
@@ -40,7 +40,7 @@ void Driver::clc(float pos82B[], float ang82B[], int isRL)
 
     th[0] = atan(pos5[1] / pos5[0]);
 
-    //----------臂形角不为零时，再求θ1~θ3----------//
+    //----------臂形角不为零时，再求θ1~θ3
     float rot30[][3] = { {cos(th[0]) * cos(th[1]), -sin(th[0]), cos(th[0]) * sin(th[1])},
                                 {sin(th[0]) * cos(th[1]), cos(th[0]), sin(th[0]) * sin(th[1])},
                                 {-sin(th[1]), 0, cos(th[1])} };                 //坐标系{3}相对于{0}的旋转矩阵
@@ -57,7 +57,7 @@ void Driver::clc(float pos82B[], float ang82B[], int isRL)
                                   {usw[2] * usw[0], usw[2] * usw[1], usw[2] * usw[2]} };
     float Cs[3][3]; matrix_multiply3(Cs, tusw, rot30);                  //系数A、B、C
 
-    //-------（臂形角φ）-------//
+    //----------臂形角φ
     if (isRL == 0) { fai = fai_R; }
     else { fai = fai_L; }
 
@@ -69,7 +69,7 @@ void Driver::clc(float pos82B[], float ang82B[], int isRL)
         th[0] = atan((sin(fai_temp) * As[1][2] + cos(fai_temp) * Bs[1][2] + Cs[1][2]) / (sin(fai_temp) * As[0][2] + cos(fai_temp) * Bs[0][2] + Cs[0][2]));
         th[1] = acos(sin(fai_temp) * As[2][2] + cos(fai_temp) * Bs[2][2] + Cs[2][2]);
         th[2] = acos(-(sin(fai_temp) * As[2][0] + cos(fai_temp) * Bs[2][0] + Cs[2][0]) / sin(th[1]));
-        //=============th5~th7==========================================
+        //----------th5~th7
         float rot5[][3] = { {-cos(th[3]) * (sin(th[0]) * sin(th[2]) - cos(th[0]) * cos(th[1]) * cos(th[2])) - cos(th[0]) * sin(th[1]) * sin(th[3]),
                                   -sin(th[0]) * cos(th[2]) - cos(th[0]) * cos(th[1]) * sin(th[2]),
                                   -sin(th[3]) * (sin(th[0]) * sin(th[2]) - cos(th[0]) * cos(th[1]) * cos(th[2])) + cos(th[0]) * sin(th[1]) * cos(th[3])},
@@ -85,7 +85,7 @@ void Driver::clc(float pos82B[], float ang82B[], int isRL)
         th[4] = atan(rot8_5[1][2] / rot8_5[0][2]);
         th[6] = atan(rot8_5[2][0] / rot8_5[2][1]);
 
-        //====================================适应度函数
+        //----------适应度函数
         for (int j = 0; j < 7; j++) { funSig[j] = 1 - 4 * (map_R[j][0] - th[j] * 180 / Pi) * (th[j] * 180 / Pi - map_R[j][1]) / pow((map_R[j][0] - map_R[j][1]), 2); }
         funTol = funSig[5] + 2 * funSig[6];
 
@@ -102,7 +102,7 @@ void Driver::clc(float pos82B[], float ang82B[], int isRL)
     th[2] = atan((-sin(fai) * As[2][1] - cos(fai) * Bs[2][1] - Cs[2][1]) / (sin(fai) * As[2][0] + cos(fai) * Bs[2][0] + Cs[2][0]));
     if (th[2] < 0) { th[2] = th[2] + Pi; };
 
-    //----------最后求θ5~θ7----------//
+    //----------最后求θ5~θ7
     float rot5[][3] = { {-cos(th[3]) * (sin(th[0]) * sin(th[2]) - cos(th[0]) * cos(th[1]) * cos(th[2])) - cos(th[0]) * sin(th[1]) * sin(th[3]),
                                 -sin(th[0]) * cos(th[2]) - cos(th[0]) * cos(th[1]) * sin(th[2]),
                                 -sin(th[3]) * (sin(th[0]) * sin(th[2]) - cos(th[0]) * cos(th[1]) * cos(th[2])) + cos(th[0]) * sin(th[1]) * cos(th[3])},
@@ -162,12 +162,12 @@ void Driver::wr(float pth[], int isRL, SMSBL& sm)
 
     if (isRL == 0)
     {
-        memcpy(map0, map_R, 128);
+        memcpy(map0, map_R, 112);
         num = 1;
     }
     else if (isRL == 1)
     {
-        memcpy(map0, map_L, 128);
+        memcpy(map0, map_L, 112);
         num = 11;
     }
     else {}
@@ -203,7 +203,14 @@ void Driver::wr(float pth[], int isRL, SMSBL& sm)
     {
         for (int i = 0; i < 7; i++)
         {
-            v = 4 * abs(ptm[i] - ptm_pre[i]); if (v > 1000) v = 1000;
+            ptm_read[i] = sm.ReadPos(num + i);
+        }
+
+
+        for (int i = 0; i < 7; i++)
+        {
+            //v = 4 * abs(ptm[i] - ptm_pre[i]); if (v > 1000) v = 1000;           //两帧目标位置差
+            v = 4 * abs(ptm[i] - ptm_read[i]); if (v > 1000) v = 1000;          //目标位置与当前位置差
             if (i == 5) v = 2 * v;
             a = 0.1 * v; if (a < 1) a = 1;
 

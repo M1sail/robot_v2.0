@@ -36,9 +36,7 @@
     <ClCompile Include="driver.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="robot_v2.0.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
+    <ClCompile Include="robot_v2.0.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SCServo\INST.h">
