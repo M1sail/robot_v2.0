@@ -3,10 +3,8 @@
 
 //isRL  0右1左
 
-void Driver::clc(float pos82B[], float ang82B[], int isRL)
+void Driver::clc(float pos82B[], float ang82B[], int isRL, float fai)
 {
-    float fai = 0;
-
     float rot82B[3][3] = { {cos(ang82B[0]) * cos(ang82B[1]), cos(ang82B[0]) * sin(ang82B[1]) * sin(ang82B[2]) - sin(ang82B[0]) * cos(ang82B[2]), cos(ang82B[0]) * sin(ang82B[1]) * cos(ang82B[2]) + sin(ang82B[0]) * sin(ang82B[2])},
                                      {sin(ang82B[0]) * cos(ang82B[1]), sin(ang82B[0]) * sin(ang82B[1]) * sin(ang82B[2]) + cos(ang82B[0]) * cos(ang82B[2]), sin(ang82B[0]) * sin(ang82B[1]) * cos(ang82B[2]) - cos(ang82B[0]) * sin(ang82B[2])},
                                      {-sin(ang82B[1]), cos(ang82B[1]) * sin(ang82B[2]), cos(ang82B[1]) * cos(ang82B[2])} };
@@ -58,8 +56,12 @@ void Driver::clc(float pos82B[], float ang82B[], int isRL)
     float Cs[3][3]; matrix_multiply3(Cs, tusw, rot30);                  //系数A、B、C
 
     //----------臂形角φ
-    if (isRL == 0) { fai = fai_R; }
-    else { fai = fai_L; }
+    if (fai < 0)
+    {
+        if (isRL == 0) { fai = fai_R; }
+        else { fai = fai_L; }
+    }
+
 
     float fai_temp; float funSig[7]; float funTol; float fai_min = 0; float funTol_min = 10;
 
@@ -222,7 +224,7 @@ void Driver::wr(float pth[], int isRL, SMSBL& sm)
     else   cout << "动作自然一点~";
 }
 
-void Driver::drive(const CTRL_DATA* data, SMSBL& sm)
+void Driver::drive(const CTRL_DATA* data, SMSBL& sm, float fai)
 {
     for (int i = 0; i < 3; i++)
     {
@@ -232,8 +234,8 @@ void Driver::drive(const CTRL_DATA* data, SMSBL& sm)
         ang_L[i] = data->L.Posture[i];
     }
 
-    clc(pos_R, ang_R, 0);
-    clc(pos_L, ang_L, 1);
+    clc(pos_R, ang_R, 0, fai);
+    clc(pos_L, ang_L, 1, fai);
 
     wr(th_R, 0, sm);
     wr(th_L, 1, sm);

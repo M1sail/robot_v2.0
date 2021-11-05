@@ -51,7 +51,7 @@ class Driver
 {
 public:
 	void ini1(SMSBL& sm);			//ini1 - 初始化 · 抬起手
-	void drive(const CTRL_DATA *data, SMSBL& sm);
+	void drive(const CTRL_DATA *data, SMSBL& sm, float fai = -1);
 
 private:
 	//=================公共变量=================//
@@ -120,7 +120,7 @@ private:
 
 private:
 	//=================计算、读写=================//
-	void clc(float pos82B[], float ang82B[], int isRL);
+	void clc(float pos82B[], float ang82B[], int isRL, float fai = -1);
 
 	int insure(int p[], int isRL);
 
