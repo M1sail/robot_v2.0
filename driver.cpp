@@ -36,7 +36,7 @@ void Driver::clc(float pos82B[], float ang82B[], int isRL, float fai)
     float TC = -pos5[2];
     th[1] = abs(TC - TA) > 0.001 ? 2 * atan((-TB - sqrt(TA * TA + TB * TB - TC * TC)) / (TC - TA)) : Pi;
 
-    th[0] = atan(pos5[1] / pos5[0]);
+    th[0] = atan2(pos5[1] , pos5[0]);
 
     //----------臂形角不为零时，再求θ1~θ3
     float rot30[][3] = { {cos(th[0]) * cos(th[1]), -sin(th[0]), cos(th[0]) * sin(th[1])},
@@ -68,7 +68,7 @@ void Driver::clc(float pos82B[], float ang82B[], int isRL, float fai)
     for (int i = 0; i < 11; i++)
     {
         fai_temp = fai + (i - 5) * Pi / 180;
-        th[0] = atan((sin(fai_temp) * As[1][2] + cos(fai_temp) * Bs[1][2] + Cs[1][2]) / (sin(fai_temp) * As[0][2] + cos(fai_temp) * Bs[0][2] + Cs[0][2]));
+        th[0] = atan2((sin(fai_temp) * As[1][2] + cos(fai_temp) * Bs[1][2] + Cs[1][2]) , (sin(fai_temp) * As[0][2] + cos(fai_temp) * Bs[0][2] + Cs[0][2]));
         th[1] = acos(sin(fai_temp) * As[2][2] + cos(fai_temp) * Bs[2][2] + Cs[2][2]);
         th[2] = acos(-(sin(fai_temp) * As[2][0] + cos(fai_temp) * Bs[2][0] + Cs[2][0]) / sin(th[1]));
         //----------th5~th7
@@ -84,8 +84,8 @@ void Driver::clc(float pos82B[], float ang82B[], int isRL, float fai)
         float rot5_inv[3][3]; matrix_inverse3(rot5_inv, rot5);
         float rot8_5[3][3]; matrix_multiply3(rot8_5, rot5_inv, rot8);
         th[5] = acos(rot8_5[2][2]);
-        th[4] = atan(rot8_5[1][2] / rot8_5[0][2]);
-        th[6] = atan(rot8_5[2][0] / rot8_5[2][1]);
+        th[4] = atan2(rot8_5[1][2] , rot8_5[0][2]);
+        th[6] = atan2(rot8_5[2][0] , rot8_5[2][1]);
 
         //----------适应度函数
         for (int j = 0; j < 7; j++) { funSig[j] = 1 - 4 * (map_R[j][0] - th[j] * 180 / Pi) * (th[j] * 180 / Pi - map_R[j][1]) / pow((map_R[j][0] - map_R[j][1]), 2); }
@@ -99,9 +99,9 @@ void Driver::clc(float pos82B[], float ang82B[], int isRL, float fai)
     if (isRL == 0) { fai_R = fai; }
     else { fai_L = fai; }
 
-    th[0] = atan((sin(fai) * As[1][2] + cos(fai) * Bs[1][2] + Cs[1][2]) / (sin(fai) * As[0][2] + cos(fai) * Bs[0][2] + Cs[0][2]));
+    th[0] = atan2((sin(fai) * As[1][2] + cos(fai) * Bs[1][2] + Cs[1][2]) , (sin(fai) * As[0][2] + cos(fai) * Bs[0][2] + Cs[0][2]));
     th[1] = acos(sin(fai) * As[2][2] + cos(fai) * Bs[2][2] + Cs[2][2]);
-    th[2] = atan((-sin(fai) * As[2][1] - cos(fai) * Bs[2][1] - Cs[2][1]) / (sin(fai) * As[2][0] + cos(fai) * Bs[2][0] + Cs[2][0]));
+    th[2] = atan2((-sin(fai) * As[2][1] - cos(fai) * Bs[2][1] - Cs[2][1]) , (sin(fai) * As[2][0] + cos(fai) * Bs[2][0] + Cs[2][0]));
     if (th[2] < 0) { th[2] = th[2] + Pi; };
 
     //----------最后求θ5~θ7
@@ -116,9 +116,9 @@ void Driver::clc(float pos82B[], float ang82B[], int isRL, float fai)
                                  -sin(th[1]) * cos(th[2]) * sin(th[3]) + cos(th[1]) * cos(th[3])} };
     float rot5_inv[3][3]; matrix_inverse3(rot5_inv, rot5);
     float rot8_5[3][3]; matrix_multiply3(rot8_5, rot5_inv, rot8);
-    th[4] = atan(rot8_5[1][2] / rot8_5[0][2]);
+    th[4] = atan2(rot8_5[1][2] , rot8_5[0][2]);
     th[5] = acos(rot8_5[2][2]);
-    th[6] = atan(rot8_5[2][0] / rot8_5[2][1]);
+    th[6] = atan2(rot8_5[2][0] , rot8_5[2][1]);
 
     if (isRL == 0)
     {
